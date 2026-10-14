@@ -96,6 +96,12 @@
     $('timer-display').textContent = pad(Math.floor(remaining / 60)) + ':' + pad(remaining % 60);
     $('timer-progress').textContent = Math.round((1 - remaining / TIMER_SECONDS) * 100) + '%';
   }
+  function setTimerState(state) {
+    var a = $('timer-start');
+    var b = $('timer-stop');
+    a.dataset.state = state === 'running' ? 'running' : '';
+    b.dataset.state = state === 'idle' ? 'idle' : '';
+  }
   function stopTimer() {
     clearInterval(timerId);
     timerId = null;
@@ -106,6 +112,7 @@
     if (remaining === 0) {
       stopTimer();
       $('timer-status').textContent = "Time's up! Take a short break.";
+      setTimerState("idle");
     }
   }
   $('timer-start').addEventListener('click', function () {
@@ -113,17 +120,20 @@
     if (remaining <= 0) remaining = TIMER_SECONDS;
     endTime = Date.now() + remaining * 1000;
     timerId = setInterval(tick, 250);
+    setTimerState('running');
     $('timer-status').textContent = 'Focus mode is on';
   });
   $('timer-stop').addEventListener('click', function () {
     if (!timerId) return;
     stopTimer();
+    setTimerState('idle');
     $('timer-status').textContent = 'Paused';
   });
   $('timer-reset').addEventListener('click', function () {
     stopTimer();
     remaining = TIMER_SECONDS;
     renderTimer();
+    setTimerState('idle');
     $('timer-status').textContent = 'Ready to focus';
   });
   renderTimer();
